@@ -1,0 +1,20 @@
+#!/usr/bin/bash
+
+declare -a dependencies=(curl grep)
+for dependency in "${dependencies[@]}"; do
+	if ! command -v "$dependency" &> /dev/null; then
+		echo "ERROR: Missing $dependency"
+		exit 100
+	fi
+done
+
+gecko_folder="/usr/bin/"
+latest=$(curl -L https://github.com/mozilla/geckodriver/releases/latest | grep -o -E "/mozilla/geckodriver/releases/download/(.*)/geckodriver-(.*)-linux64.tar.gz" 2>&1 | head -n 1)
+latest_file="${latest##*/}"
+echo "$latest_file"
+url="https://github.com$latest"
+echo "$url"
+curl -L -o "$latest_file" "$url"
+tar -xvf "$latest_file"
+mv "geckodriver" "$gecko_folder"
+rm "$latest_file"
